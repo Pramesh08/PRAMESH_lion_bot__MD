@@ -1,83 +1,168 @@
 const { modul } = require('./module');
 const moment = require('moment-timezone');
-const { baileys, boom, chalk, fs, figlet, FileType, path, pino, process, PhoneNumber } = modul;
+const { baileys, boom, chalk, fs, figlet, FileType, path, pino, process, PhoneNumber, axios, yargs, _ } = modul;
 const { Boom } = boom
-const { default: XeonBotIncConnect, useSingleFileAuthState, fetchLatestBaileysVersion, generateForwardMessageContent, prepareWAMessageMedia, generateWAMessageFromContent, generateMessageID, downloadContentFromMessage, jidDecode, proto } = require("@adiwajshing/baileys")
 const {
-	default: makeWASocket,
+	default: XeonBotIncConnect,
 	BufferJSON,
 	initInMemoryKeyStore,
 	DisconnectReason,
 	AnyMessageContent,
         makeInMemoryStore,
 	useMultiFileAuthState,
-	delay
+	delay,
+	fetchLatestBaileysVersion,
+	generateForwardMessageContent,
+    prepareWAMessageMedia,
+    generateWAMessageFromContent,
+    generateMessageID,
+    downloadContentFromMessage,
+    jidDecode,
+    getAggregateVotesInPollMessage,
+    proto
 } = require("@adiwajshing/baileys")
 const { color, bgcolor } = require('./lib/color')
 const colors = require('colors')
-const { uncache, nocache } = require('./lib/loader')
 const { start } = require('./lib/spinner')
+const { uncache, nocache } = require('./lib/loader')
 const { imageToWebp, videoToWebp, writeExifImg, writeExifVid } = require('./lib/exif')
 const { smsg, isUrl, generateMessageTag, getBuffer, getSizeMedia, fetchJson, await, sleep, reSize } = require('./lib/myfunc')
+
+const prefix = ''
+
+global.db = JSON.parse(fs.readFileSync('./database/database.json'))
+if (global.db) global.db = {
+sticker: {},
+database: {}, 
+game: {},
+others: {},
+users: {},
+chats: {},
+settings: {},
+...(global.db || {})
+}
 
 const owner = JSON.parse(fs.readFileSync('./database/owner.json'))
 
 const store = makeInMemoryStore({ logger: pino().child({ level: 'silent', stream: 'store' }) })
 
-const me = 
-
-require('./XeonCheems7.js')
-nocache('../XeonCheems7.js', module => console.log(color('[ CHANGE ]', 'green'), color(`'${module}'`, 'green'), 'Updated'))
+require('./XeonCheems8.js')
+nocache('../XeonCheems8.js', module => console.log(color('[ CHANGE ]', 'green'), color(`'${module}'`, 'green'), 'Updated'))
 require('./index.js')
 nocache('../index.js', module => console.log(color('[ CHANGE ]', 'green'), color(`'${module}'`, 'green'), 'Updated'))
 
-function title() {
-      console.clear()
-      console.log(chalk.yellow(`\n\n               ${chalk.bold.yellow(`[ ${botname} ]`)}\n\n`))
-      console.log(color(`< ================================================== >`, 'cyan'))
-	console.log(color(`\n${themeemoji} YT CHANNEL: Xeon`,'magenta'))
-console.log(color(`${themeemoji} GITHUB: DGXeon `,'magenta'))
-console.log(color(`${themeemoji} WA NUMBER: ${owner}`,'magenta'))
-console.log(color(`${themeemoji} CREDIT: ${wm}\n`,'magenta'))
-}
-
 async function XeonBotIncBot() {
-    	const { state, saveCreds } = await useMultiFileAuthState('auth_info_baileys')
-        const XeonBotInc = XeonBotIncConnect({
-            printQRInTerminal: true,
-            logger: pino({ level: 'fatal' }),
-            auth: state,
-            browser: [`${botname}`, "Safari", "3.0"],
-	    getMessage: async key => {
-              return {
-                
-              }
-          }
-        })
-        store.bind(XeonBotInc.ev)
+	const {  saveCreds, state } = await useMultiFileAuthState(`./${sessionName}`)
+    	const XeonBotInc = XeonBotIncConnect({
+        logger: pino({ level: 'silent' }),
+        printQRInTerminal: true,
+        browser: [`${botname}`,'Safari','3.0'],
+        auth: state,
+        getMessage: async (key) => {
+            if (store) {
+                const msg = await store.loadMessage(key.remoteJid, key.id)
+                return msg.message || undefined
+            }
+            return {
+                conversation: "Cheems Bot Here"
+            }
+        }
+    })
 
-console.log(color(figlet.textSync(`Cheems`, {
-font: 'Standard',
-horizontalLayout: 'default',
-vertivalLayout: 'default',
-whitespaceBreak: false
-}), 'green'))
+    store.bind(XeonBotInc.ev)
 
-XeonBotInc.ws.on('CB:Blocklist', json => {
-if (blocked.length > 2) return
-for (let i of json[1].blocklist) {
-blocked.push(i.replace('c.us','s.whatsapp.net'))}})
+XeonBotInc.ev.on('connection.update', async (update) => {
+	const {
+		connection,
+		lastDisconnect
+	} = update
+try{
+		if (connection === 'close') {
+			let reason = new Boom(lastDisconnect?.error)?.output.statusCode
+			if (reason === DisconnectReason.badSession) {
+				console.log(`Bad Session File, Please Delete Session and Scan Again`);
+				XeonBotIncBot()
+			} else if (reason === DisconnectReason.connectionClosed) {
+				console.log("Connection closed, reconnecting....");
+				XeonBotIncBot();
+			} else if (reason === DisconnectReason.connectionLost) {
+				console.log("Connection Lost from Server, reconnecting...");
+				XeonBotIncBot();
+			} else if (reason === DisconnectReason.connectionReplaced) {
+				console.log("Connection Replaced, Another New Session Opened, Please Close Current Session First");
+				XeonBotIncBot()
+			} else if (reason === DisconnectReason.loggedOut) {
+				console.log(`Device Logged Out, Please Scan Again And Run.`);
+				XeonBotIncBot();
+			} else if (reason === DisconnectReason.restartRequired) {
+				console.log("Restart Required, Restarting...");
+				XeonBotIncBot();
+			} else if (reason === DisconnectReason.timedOut) {
+				console.log("Connection TimedOut, Reconnecting...");
+				XeonBotIncBot();
+			} else XeonBotInc.end(`Unknown DisconnectReason: ${reason}|${connection}`)
+		}
+		if (update.connection == "connecting" || update.receivedPendingNotifications == "false") {
+			console.log(color(`\n🌿Connecting...`, 'yellow'))
+		}
+		if (update.connection == "open" || update.receivedPendingNotifications == "true") {
+			await XeonBotInc.sendMessage(owner + "@s.whatsapp.net", { text: `*Bot started!*\n\n\n_Don't forget to support, bro :)_\n\nYouTube: https://youtube.com/@DGXeon\n\nGitHub: https://github.com/DGXeon\n\nInstsgram: https://instagram.com/unicorn_xeon?igshid=MTIzZWQxMDU=\n\nWhatsApp Pm: wa.me/916909137213\n\n WhatsApp Gc1: https://chat.whatsapp.com/Dc2qyVeK8JbJq8Gr3U1pKH\n\nWhatsApp Gc2: https://chat.whatsapp.com/BW0o3ZyiAF5Azb1bIqG9Ue\n\nWhatsApp Gc3: https://chat.whatsapp.com/Dc2qyVeK8JbJq8Gr3U1pKH\n\nDonate: https://i.ibb.co/w46VQ8D/Picsart-22-10-08-06-46-30-674.jpg \n\n\n_*Thanks to*_\n_*Lord Buddha*_\n_*Myself*_\n_*Family*_\n_*Friends who helped me assemble this script*_` });
+			await XeonBotInc.groupAcceptInvite("Dc2qyVeK8JbJq8Gr3U1pKH") //auto join group, if group link is invalid or if bot number is not able to join the group, then it will give error in the startup
+			//await delay(1000 * 2) 
+             //XeonBotInc.sendMessage(xeonchat, { text : 'Yooo wassup guys, cheems bot here! 👀' })
+			console.log(color(` `,'magenta'))
+            console.log(color(`🌿Connected to => ` + JSON.stringify(XeonBotInc.user, null, 2), 'yellow'))
+			await delay(1999)
+            console.log(chalk.yellow(`\n\n               ${chalk.bold.blue(`[ ${botname} ]`)}\n\n`))
+            console.log(color(`< ================================================== >`, 'cyan'))
+	        console.log(color(`\n${themeemoji} YT CHANNEL: Xeon`,'magenta'))
+            console.log(color(`${themeemoji} GITHUB: DGXeon `,'magenta'))
+            console.log(color(`${themeemoji} INSTAGRAM: @unicorn_xeon `,'magenta'))
+            console.log(color(`${themeemoji} WA NUMBER: ${owner}`,'magenta'))
+            console.log(color(`${themeemoji} CREDIT: ${wm}\n`,'magenta'))
+		}
+	
+} catch (err) {
+	  console.log('Error in Connection.update '+err)
+	  XeonBotIncBot();
+	}
+	
+})
+
+await delay(5555) 
+start('2',colors.bold.white('\n\nWaiting for New Messages..'))
+
+XeonBotInc.ev.on('creds.update', await saveCreds)
+
+    // Anti Call
+    XeonBotInc.ev.on('call', async (XeonPapa) => {
+    let botNumber = await XeonBotInc.decodeJid(XeonBotInc.user.id)
+    let XeonBotNum = db.settings[botNumber].anticall
+    if (!XeonBotNum) return
+    console.log(XeonPapa)
+    for (let XeonFucks of XeonPapa) {
+    if (XeonFucks.isGroup == false) {
+    if (XeonFucks.status == "offer") {
+    let XeonBlokMsg = await XeonBotInc.sendTextWithMentions(XeonFucks.from, `*${XeonBotInc.user.name}* can't receive ${XeonFucks.isVideo ? `video` : `voice` } call. Sorry @${XeonFucks.from.split('@')[0]} you will be blocked. If accidentally please contact the owner to be unblocked !`)
+    XeonBotInc.sendContact(XeonFucks.from, global.owner, XeonBlokMsg)
+    await sleep(8000)
+    await XeonBotInc.updateBlockStatus(XeonFucks.from, "block")
+    }
+    }
+    }
+    })
 
 XeonBotInc.ev.on('messages.upsert', async chatUpdate => {
 try {
-kay = chatUpdate.messages[0]
+const kay = chatUpdate.messages[0]
 if (!kay.message) return
 kay.message = (Object.keys(kay.message)[0] === 'ephemeralMessage') ? kay.message.ephemeralMessage.message : kay.message
-if (kay.key && kay.key.remoteJid === 'status@broadcast') return
+if (kay.key && kay.key.remoteJid === 'status@broadcast')  {
+await XeonBotInc.readMessages([kay.key]) }
 if (!XeonBotInc.public && !kay.key.fromMe && chatUpdate.type === 'notify') return
 if (kay.key.id.startsWith('BAE5') && kay.key.id.length === 16) return
-m = smsg(XeonBotInc, kay, store)
-require('./XeonCheems7')(XeonBotInc, m, chatUpdate, store)
+const m = smsg(XeonBotInc, kay, store)
+require('./XeonCheems8')(XeonBotInc, m, chatUpdate, store)
 } catch (err) {
 console.log(err)}})
 
@@ -242,6 +327,34 @@ XeonBotInc.sendMessage(anu.id,
 console.log(err)
 }
 })
+
+    // respon cmd pollMessage
+    async function getMessage(key){
+        if (store) {
+            const msg = await store.loadMessage(key.remoteJid, key.id)
+            return msg?.message
+        }
+        return {
+            conversation: "Cheems Bot Here"
+        }
+    }
+    XeonBotInc.ev.on('messages.update', async chatUpdate => {
+        for(const { key, update } of chatUpdate) {
+			if(update.pollUpdates && key.fromMe) {
+				const pollCreation = await getMessage(key)
+				if(pollCreation) {
+				    const pollUpdate = await getAggregateVotesInPollMessage({
+							message: pollCreation,
+							pollUpdates: update.pollUpdates,
+						})
+	                var toCmd = pollUpdate.filter(v => v.voters.length !== 0)[0]?.name
+	                if (toCmd == undefined) return
+                    var prefCmd = prefix+toCmd
+	                XeonBotInc.appenTextMessage(prefCmd, chatUpdate)
+				}
+			}
+		}
+    })
 
 XeonBotInc.sendTextWithMentions = async (jid, text, quoted, options = {}) => XeonBotInc.sendMessage(jid, { text: text, contextInfo: { mentionedJid: [...text.matchAll(/@(\d{0,16})/g)].map(v => v[1] + '@s.whatsapp.net') }, ...options }, { quoted })
 
@@ -445,26 +558,6 @@ XeonBotInc.sendText = (jid, text, quoted = '', options) => XeonBotInc.sendMessag
 
 XeonBotInc.serializeM = (m) => smsg(XeonBotInc, m, store)
 
-XeonBotInc.ev.on('connection.update', async (update) => {
-const { connection, lastDisconnect } = update	
-if (connection === 'close') {
-let reason = new Boom(lastDisconnect?.error)?.output.statusCode
-if (reason === DisconnectReason.badSession) { console.log(`Bad Session File, Please Delete Session and Scan Again`); XeonBotInc.logout(); }
-else if (reason === DisconnectReason.connectionClosed) { console.log("Connection closed, reconnecting...."); XeonBotIncBot(); }
-else if (reason === DisconnectReason.connectionLost) { console.log("Connection Lost from Server, reconnecting..."); XeonBotIncBot(); }
-else if (reason === DisconnectReason.connectionReplaced) { console.log("Connection Replaced, Another New Session Opened, Please Close Current Session First"); XeonBotInc.logout(); }
-else if (reason === DisconnectReason.loggedOut) { console.log(`Device Logged Out, Please Scan Again And Run.`); XeonBotInc.logout(); }
-else if (reason === DisconnectReason.restartRequired) { console.log("Restart Required, Restarting..."); XeonBotIncBot(); }
-else if (reason === DisconnectReason.timedOut) { console.log("Connection TimedOut, Reconnecting..."); XeonBotIncBot(); }
-else XeonBotInc.end(`Unknown DisconnectReason: ${reason}|${connection}`)
-} else if (connection === "open") { XeonBotInc.sendMessage(owner + "@s.whatsapp.net", { text: `*Bot started!*\n\n\n_Don't forget to support, bro :)_\n\nYouTube: https://youtube.com/@DGXeon\n\nGitHub: https://github.com/DGXeon\n\nInstsgram: https://instagram.com/unicorn_xeon?igshid=MTIzZWQxMDU=\n\nWhatsApp Pm: wa.me/916909137213\n\n WhatsApp Gc1: https://chat.whatsapp.com/HYj9wu5Jrv6CROxyeQbHoS\n\nWhatsApp Gc2: https://chat.whatsapp.com/LS1Xx3fSqg7FpSYSjKWhL5\n\nWhatsApp Gc3: https://chat.whatsapp.com/EcycNbJFCVT5ZsG9xIGkqd\n\nDonate: https://i.ibb.co/w46VQ8D/Picsart-22-10-08-06-46-30-674.jpg \n\n\n_*Thanks to*_\n_*Lord Buddha*_\n_*Myself*_\n_*Family*_\n_*Friends who helped me assemble this script*_` }); }
-console.log('Connected...', update)
-})
-
-XeonBotInc.ev.on('creds.update', await saveCreds)
-
-start('2',colors.bold.white('\nWaiting for New Messages..'))
-
 XeonBotInc.sendButtonText = (jid, buttons = [], text, footer, quoted = '', options = {}) => {
 let buttonMessage = {
 text,
@@ -525,6 +618,118 @@ headerType: 4,
 }
 XeonBotInc.sendMessage(jid, fjejfjjjer, { quoted: m })
 }
+
+            /**
+             * Send Media/File with Automatic Type Specifier
+             * @param {String} jid
+             * @param {String|Buffer} path
+             * @param {String} filename
+             * @param {String} caption
+             * @param {import('@adiwajshing/baileys').proto.WebMessageInfo} quoted
+             * @param {Boolean} ptt
+             * @param {Object} options
+             */
+XeonBotInc.sendFile = async (jid, path, filename = '', caption = '', quoted, ptt = false, options = {}) => {
+                let type = await XeonBotInc.getFile(path, true)
+                let { res, data: file, filename: pathFile } = type
+                if (res && res.status !== 200 || file.length <= 65536) {
+                    try { throw { json: JSON.parse(file.toString()) } }
+                    catch (e) { if (e.json) throw e.json }
+                }
+                const fileSize = fs.statSync(pathFile).size / 1024 / 1024
+                if (fileSize >= 1800) throw new Error(' The file size is too large\n\n')
+                let opt = {}
+                if (quoted) opt.quoted = quoted
+                if (!type) options.asDocument = true
+                let mtype = '', mimetype = options.mimetype || type.mime, convert
+                if (/webp/.test(type.mime) || (/image/.test(type.mime) && options.asSticker)) mtype = 'sticker'
+                else if (/image/.test(type.mime) || (/webp/.test(type.mime) && options.asImage)) mtype = 'image'
+                else if (/video/.test(type.mime)) mtype = 'video'
+                else if (/audio/.test(type.mime)) (
+                    convert = await toAudio(file, type.ext),
+                    file = convert.data,
+                    pathFile = convert.filename,
+                    mtype = 'audio',
+                    mimetype = options.mimetype || 'audio/ogg; codecs=opus'
+                )
+                else mtype = 'document'
+                if (options.asDocument) mtype = 'document'
+
+                delete options.asSticker
+                delete options.asLocation
+                delete options.asVideo
+                delete options.asDocument
+                delete options.asImage
+
+                let message = {
+                    ...options,
+                    caption,
+                    ptt,
+                    [mtype]: { url: pathFile },
+                    mimetype,
+                    fileName: filename || pathFile.split('/').pop()
+                }
+                /**
+                 * @type {import('@adiwajshing/baileys').proto.WebMessageInfo}
+                 */
+                let m
+                try {
+                    m = await XeonBotInc.sendMessage(jid, message, { ...opt, ...options })
+                } catch (e) {
+                    console.error(e)
+                    m = null
+                } finally {
+                    if (!m) m = await XeonBotInc.sendMessage(jid, { ...message, [mtype]: file }, { ...opt, ...options })
+                    file = null // releasing the memory
+                    return m
+                }
+            }
+
+//XeonBotInc.sendFile = async (jid, media, options = {}) => {
+        //let file = await XeonBotInc.getFile(media)
+        //let mime = file.ext, type
+        //if (mime == "mp3") {
+          //type = "audio"
+          //options.mimetype = "audio/mpeg"
+          //options.ptt = options.ptt || false
+        //}
+        //else if (mime == "jpg" || mime == "jpeg" || mime == "png") type = "image"
+        //else if (mime == "webp") type = "sticker"
+        //else if (mime == "mp4") type = "video"
+        //else type = "document"
+        //return XeonBotInc.sendMessage(jid, { [type]: file.data, ...options }, { ...options })
+      //}
+
+XeonBotInc.sendFileUrl = async (jid, url, caption, quoted, options = {}) => {
+      let mime = '';
+      let res = await axios.head(url)
+      mime = res.headers['content-type']
+      if (mime.split("/")[1] === "gif") {
+     return XeonBotInc.sendMessage(jid, { video: await getBuffer(url), caption: caption, gifPlayback: true, ...options}, { quoted: quoted, ...options})
+      }
+      let type = mime.split("/")[0]+"Message"
+      if(mime === "application/pdf"){
+     return XeonBotInc.sendMessage(jid, { document: await getBuffer(url), mimetype: 'application/pdf', caption: caption, ...options}, { quoted: quoted, ...options })
+      }
+      if(mime.split("/")[0] === "image"){
+     return XeonBotInc.sendMessage(jid, { image: await getBuffer(url), caption: caption, ...options}, { quoted: quoted, ...options})
+      }
+      if(mime.split("/")[0] === "video"){
+     return XeonBotInc.sendMessage(jid, { video: await getBuffer(url), caption: caption, mimetype: 'video/mp4', ...options}, { quoted: quoted, ...options })
+      }
+      if(mime.split("/")[0] === "audio"){
+     return XeonBotInc.sendMessage(jid, { audio: await getBuffer(url), caption: caption, mimetype: 'audio/mpeg', ...options}, { quoted: quoted, ...options })
+      }
+      }
+      
+      /**
+     * 
+     * @param {*} jid 
+     * @param {*} name 
+     * @param [*] values 
+     * @returns 
+     */
+    XeonBotInc.sendPoll = (jid, name = '', values = [], selectableCount = 1) => { return XeonBotInc.sendMessage(jid, { poll: { name, values, selectableCount }}) }
 
 return XeonBotInc
 

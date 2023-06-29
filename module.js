@@ -2,7 +2,7 @@ module.exports = {
 modul: {
 	axios: require('axios'),
 	boom: require('@hapi/boom'),
-	baileys: require('@adiwajshing/baileys'), 
+	baileys: require('@adiwajshing/baileys'),
 	chalk: require('chalk'),
 	crypto: require('crypto'),
 	cheerio: require('cheerio'),
@@ -18,6 +18,7 @@ modul: {
 	got: require('got'),
 	gimage: require('g-i-s'),
 	google: require('google-it'),
+	googleTTS: require('google-tts-api'),
 	human: require('human-readable'),
 	jsobfus: require('javascript-obfuscator'),
 	Jimp: require('jimp'),
@@ -27,6 +28,7 @@ modul: {
 	moment: require('moment-timezone'),
 	ms: require('ms'),
 	miniget: require('miniget'),
+	maker: require('mumaker'),
 	nodecron: require('node-cron'),
 	nodeid3: require('node-id3'),
 	nodeytm: require('node-youtube-music'),
@@ -54,5 +56,6 @@ modul: {
     yt: require('youtube-yts'),
     ytdl: require('ytdl-core'),
     webp: require('node-webpmux')
+
 }
 }

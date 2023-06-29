@@ -1,6 +1,17 @@
 const chalk = require("chalk")
 const fs = require("fs")
 
+//aumto presence update
+global.autoTyping = false //auto tying in gc (true to on, false to off)
+global.autoRecord = false //auto recording (true to on, false to off)
+global.autoblockmorroco = false //auto block 212 (true to on, false to off)
+global.autokickmorroco = false //auto kick 212 (true to on, false to off) 
+global.antispam = false //auto kick spammer (true to on, false to off)
+
+
+//if api key expire, u can generate one from here: https://beta.openai.com/account/api-keys
+global.keyopenai = "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"
+
 //documents variants
 global.doc1 = 'application/vnd.openxmlformats-officedocument.presentationml.presentation'
 global.doc2 = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
@@ -18,20 +29,21 @@ global.socialm = "GitHub: DGXeon" //ur github or insta name
 global.location = "India, Mizoram, Aizawl" //ur location
 
 //new
-global.botname = "Cheems Bot MD V7"
+global.botname = "Cheems Bot MD V8"
 global.ownernumber = '916909137213'
 global.ownername = '🦄드림 가이 Xeon'
 global.ownerNumber = ["916909137213@s.whatsapp.net"]
 global.ownerweb = "https://youtube.com/@DGXeon"
-global.websitex = "https://youtu.be/ecl-JDVDz3E"
+global.websitex = "https://youtu.be/L_SIk59QeAU"
 global.wagc = "https://chat.whatsapp.com/HYj9wu5Jrv6CROxyeQbHoS"
-global.themeemoji = '🥀'
+global.themeemoji = '🪀'
 global.wm = "Xeon Bot Inc."
-global.botscript = 'https://github.com/DGXeon/CheemsBot-MD7' //script link
+global.botscript = 'https://github.com/DGXeon/CheemsBot-MD6' //script link
 global.packname = "Sticker By"
-global.author = "Cheems Bot\n\n\nA whatsapp bot developed by\n🦄Dream Guy Xeon\n\n\n\n\n\n\n\n       --------______-------\n\n\n\n\n\n\n\nContact No. : +916909137213"
+global.author = "🦄드림 가이 Xeon\n\n+916909137213"
 global.creator = "916909137213@s.whatsapp.net"
 global.prefa = ['','!','.','#','&']
+global.sessionName = 'session'
 global.hituet = 0
 
 //media target
@@ -39,6 +51,7 @@ global.thum = fs.readFileSync("./XeonMedia/theme/cheemspic.jpg") //ur thumb pic
 global.log0 = fs.readFileSync("./XeonMedia/theme/cheemspic.jpg") //ur logo pic
 global.err4r = fs.readFileSync("./XeonMedia/theme/cheemspic.jpg") //ur error pic
 global.thumb = fs.readFileSync("./XeonMedia/theme/cheemspic.jpg") //ur thumb pic
+global.defaultpp = 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png?q=60' //default pp wa
 
 //menu image maker
 global.flaming = 'https://www6.flamingtext.com/net-fu/proxy_form.cgi?&imageoutput=true&script=sketch-name&doScale=true&scaleWidth=800&scaleHeight=500&fontsize=100&text='
@@ -48,18 +61,7 @@ global.flasmurf = 'https://www6.flamingtext.com/net-fu/proxy_form.cgi?&imageoutp
 
 //messages
 global.mess = {
-    success: 'Here you go!',
-    admin: 'This feature could be used by admins only!',
-    botAdmin: 'Bot Must Be Admin First!',
-    premime: 'Premium Special Features If You Want to Register Type Rent',
-    owner: 'This feature could be used by owner only',
-    group: 'Features Used Only For Groups!',
-    private: 'Features Used Only For Private Chat!',
-    bot: 'This feature could be used by bot only',
-    wait: 'In process...',
-    linkm: 'Where is the link?',
-    endLimit: 'Your Daily Limit Has Expired, The Limit Will Be Reset Every 12 Hours',
-    nsfw: 'The nsfw feature has not been activated, please contact the admin to activate',
+    success: 'Here you go!', 
 }
 
 let file = require.resolve(__filename)
